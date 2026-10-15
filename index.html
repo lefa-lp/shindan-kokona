@@ -40,6 +40,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Hiragino Kaku
 .ctap{display:block;width:100%;text-align:center;padding:14px;border-radius:12px;font-size:15px;font-weight:600;background:#1D9E75;color:#fff;border:none;cursor:pointer;margin-bottom:10px;text-decoration:none}
 .ctas{display:block;width:100%;text-align:center;padding:12px;border-radius:12px;font-size:13px;background:#f5f5f3;color:#666;border:1px solid #ddd;cursor:default}
 .rb{background:none;border:none;color:#aaa;font-size:13px;cursor:pointer;display:block;margin:1.25rem auto 0;text-decoration:underline}
+.copy-msg-box{background:#FFF5EC;border:1.5px solid #E8A96A;border-radius:12px;padding:12px 14px;margin:10px 0;}
+.copy-msg-label{font-size:12px;color:#C45E00;font-weight:600;margin-bottom:6px;}
+.copy-msg-text{font-size:13px;color:#333;line-height:1.6;margin-bottom:10px;white-space:pre-wrap;}
+.copy-btn{display:block;width:100%;padding:10px;border-radius:8px;background:#C45E00;color:#fff;font-size:13px;font-weight:600;border:none;cursor:pointer;}
+.copy-done{font-size:12px;color:#C45E00;margin-top:8px;text-align:center;}
 </style>
 </head>
 <body>
@@ -308,7 +313,14 @@ function buildResult(a){
     ${seikotsuNote}
     <div class="note-orange">根本から改善したいなら、<strong>ここな整体院</strong>へ。<br>骨格・姿勢・動作パターンから総合的にアプローチし、その場しのぎではない体づくりをサポートします。</div>
     ${r.cta
-      ?`<a href="${lineUrl(k)}" class="ctap" target="_blank" rel="noopener">${r.ct}</a><div class="ctas">${r.cn}</div>`
+      ?`<a href="${lineUrl(k)}" class="ctap" target="_blank" rel="noopener">${r.ct}</a>
+        <div class="copy-msg-box" id="cmb-${k}">
+          <div class="copy-msg-label">💬 送るメッセージ例（タップでコピー）</div>
+          <div class="copy-msg-text" id="cmt-${k}">${LINE_MSG[k]||"はじめまして。相談させてください。"}</div>
+          <button class="copy-btn" onclick="copyMsg('${k}')">コピーする</button>
+          <div class="copy-done" id="cdone-${k}" style="display:none">✅ コピーしました！LINEに貼り付けて送信してください</div>
+        </div>
+        <div class="ctas">${r.cn}</div>`
       :`<div class="ctas">医療機関でご相談の上、ここな整体院へお気軽にご連絡ください</div>`}
   </div><button class="rb" onclick="restart()">もう一度診断する</button>`;
 }
@@ -395,6 +407,24 @@ function tog(i,v){
 }
 function conf(k){if(!sel.length)return;ans[k]=[...sel];step++;render()}
 function restart(){step=-1;ans={};sel=[];render()}
+function copyMsg(k){
+  const el=document.getElementById("cmt-"+k);
+  if(!el)return;
+  const txt=el.innerText;
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(txt).then(()=>showCopyDone(k));
+  } else {
+    const ta=document.createElement("textarea");
+    ta.value=txt;ta.style.position="fixed";ta.style.opacity="0";
+    document.body.appendChild(ta);ta.select();
+    try{document.execCommand("copy");showCopyDone(k);}catch(e){}
+    document.body.removeChild(ta);
+  }
+}
+function showCopyDone(k){
+  const d=document.getElementById("cdone-"+k);
+  if(d){d.style.display="block";setTimeout(()=>d.style.display="none",3000);}
+}
 render();
 </script>
 </body>
